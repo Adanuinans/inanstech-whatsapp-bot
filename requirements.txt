@@ -1,0 +1,6 @@
+flask
+selenium
+openai
+google-generativeai
+huggingface-hub
+requests
