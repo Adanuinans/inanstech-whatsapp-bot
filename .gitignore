@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# Data files
+data/
+*.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+*.txt
+
+# Screenshots
+*.png
+*.jpg
+
+# Selenium drivers
+geckodriver.exe
+chromedriver.exe
+geckodriver
+chromedriver
+
+# Local profile
+firefox_profile/
+chrome_profile/
+
+# Node.js (if any)
+node_modules/
+whatsapp_bridge/
+auth_info/
+
+# Render deployment
+.render/
