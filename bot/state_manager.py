@@ -1,56 +1,41 @@
-import time
+# bot/state_manager.py
+import json
+import os
+from config import USERS_JSON, LEADS_JSON, MESSAGES_JSON, LOGS_JSON, DATA_FOLDER
 
 class StateManager:
     def __init__(self):
-        self.storage = {}
-
-    def _init_user(self, user_id):
-        if user_id not in self.storage:
-            self.storage[user_id] = {
-                "messages": [],
-                "state": {},
-                "profile": {}
-            }
-
-    def save_message(self, user_id, text, incoming=True):
-        self._init_user(user_id)
-
-        self.storage[user_id]["messages"].append({
-            "text": text,
-            "incoming": incoming,
-            "timestamp": time.time()
-        })
-
-        # Keep only last 50 messages
-        self.storage[user_id]["messages"] = self.storage[user_id]["messages"][-50:]
-
-    def get_conversation_history(self, user_id, limit=10):
-        self._init_user(user_id)
-
-        messages = self.storage[user_id]["messages"][-limit:]
-
-        formatted = []
-        for msg in messages:
-            role = "user" if msg["incoming"] else "assistant"
-            formatted.append({
-                "role": role,
-                "content": msg["text"]
-            })
-
-        return formatted
-
-    def get_user_state(self, user_id):
-        self._init_user(user_id)
-        return self.storage[user_id]["state"]
-
-    def set_user_state(self, user_id, key, value):
-        self._init_user(user_id)
-        self.storage[user_id]["state"][key] = value
-
-    def get_user_profile(self, user_id):
-        self._init_user(user_id)
-        return self.storage[user_id]["profile"]
-
-    def set_user_profile(self, user_id, data: dict):
-        self._init_user(user_id)
-        self.storage[user_id]["profile"].update(data)
+        # Ensure data folder exists
+        os.makedirs(DATA_FOLDER, exist_ok=True)
+        
+        self.users_file = USERS_JSON
+        self.leads_file = LEADS_JSON
+        self.messages_file = MESSAGES_JSON
+        self.logs_file = LOGS_JSON
+        self.user_states = {}
+    
+    def load_json(self, path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            return {}
+    
+    def save_json(self, path, data):
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+    
+    def get_user_state(self, phone):
+        if phone not in self.user_states:
+            self.user_states[phone] = {}
+        return self.user_states[phone]
+    
+    def set_user_state(self, phone, state):
+        self.user_states[phone] = state
+    
+    def save_message(self, phone, msg, incoming=True):
+        messages = self.load_json(self.messages_file)
+        if phone not in messages:
+            messages[phone] = []
+        messages[phone].append({"text": msg, "incoming": incoming})
+        self.save_json(self.messages_file, messages)

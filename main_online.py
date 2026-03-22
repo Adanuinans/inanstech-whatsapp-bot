@@ -16,16 +16,17 @@ is_connected = False
 
 def start_browser():
     global driver, qr_code, is_connected
-    print("🚀 Starting Firefox in headless mode...")
+    print("🚀 Starting browser...")
     driver = launch_browser()
     
     if not driver:
         print("❌ Failed to start browser")
         return
     
-    print("✅ Browser started, waiting for WhatsApp...")
+    print("✅ Browser started")
     
-    for i in range(60):  # Wait up to 2 minutes
+    # Wait for QR code
+    for i in range(60):
         if is_whatsapp_connected(driver):
             is_connected = True
             print("✅ WhatsApp connected!")
@@ -34,9 +35,6 @@ def start_browser():
         if qr_code:
             print("✅ QR code generated")
         time.sleep(2)
-    
-    if not is_connected:
-        print("⚠️ Waiting for QR scan...")
 
 def run_bot():
     global driver, is_connected
@@ -64,18 +62,6 @@ def get_qr():
 def status():
     return jsonify({'connected': is_connected})
 
-def keep_alive():
-    """Keep the server alive by pinging itself"""
-    import requests
-    while True:
-        try:
-            url = os.environ.get('RENDER_EXTERNAL_URL', 'http://localhost:5000')
-            requests.get(f"{url}/api/status", timeout=5)
-            print("Keep-alive ping sent")
-        except:
-            pass
-        time.sleep(300)  # Every 5 minutes
-
 if __name__ == '__main__':
     # Start browser in background
     browser_thread = threading.Thread(target=start_browser)
@@ -84,11 +70,6 @@ if __name__ == '__main__':
     # Start bot in background
     bot_thread = threading.Thread(target=run_bot)
     bot_thread.start()
-    
-    # Start keep-alive if on Render
-    if os.environ.get('RENDER'):
-        alive_thread = threading.Thread(target=keep_alive, daemon=True)
-        alive_thread.start()
     
     # Start web server
     port = int(os.environ.get('PORT', 5000))
