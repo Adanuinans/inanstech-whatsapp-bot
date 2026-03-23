@@ -14,7 +14,7 @@ MENU_JSON = os.path.join(DATA_FOLDER, "menu.json")
 SETTINGS_JSON = os.path.join(DATA_FOLDER, "settings.json")
 
 # Mistral AI Configuration
-MISTRAL_API_KEY = "d3g94JPrb9GTfBKwz3KVRgQvXT4XkfqO"
+MISTRAL_API_KEY = ""
 MISTRAL_MODEL = "mistral-small-latest"  # Free tier model
 
 # Other AI keys (optional)
