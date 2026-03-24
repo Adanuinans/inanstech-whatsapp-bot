@@ -3,7 +3,7 @@ import os
 import time
 import threading
 from flask import Flask, render_template, jsonify
-from bot.driver_online import launch_browser, is_whatsapp_connected, get_qr_code
+from bot.driver import launch_browser_headless, is_whatsapp_connected, get_qr_code, wait_for_connection
 from bot.state_manager import StateManager
 from bot.router import Router
 from bot.simple_watcher import watch_messages
@@ -16,25 +16,34 @@ is_connected = False
 
 def start_browser():
     global driver, qr_code, is_connected
-    print("🚀 Starting browser...")
-    driver = launch_browser()
+    print("🚀 Starting Firefox in headless mode...")
+    driver = launch_browser_headless()
     
     if not driver:
         print("❌ Failed to start browser")
         return
     
-    print("✅ Browser started")
+    print("✅ Browser started, waiting for WhatsApp...")
     
-    # Wait for QR code
+    # Wait for QR code to appear
     for i in range(60):
         if is_whatsapp_connected(driver):
             is_connected = True
             print("✅ WhatsApp connected!")
             break
+        
         qr_code = get_qr_code(driver)
         if qr_code:
-            print("✅ QR code generated")
+            print("✅ QR code captured")
+            break
         time.sleep(2)
+    
+    if not is_connected and qr_code:
+        print("📱 QR code ready. Waiting for scan...")
+        # Wait for connection
+        if wait_for_connection(driver):
+            is_connected = True
+            print("✅ WhatsApp connected!")
 
 def run_bot():
     global driver, is_connected
@@ -53,10 +62,14 @@ def index():
     return render_template('online_dashboard.html', connected=is_connected)
 
 @app.route('/api/qr')
-def get_qr():
-    if qr_code:
-        return jsonify({'qr': qr_code, 'connected': is_connected})
-    return jsonify({'qr': None, 'connected': is_connected})
+def get_qr_api():
+    global qr_code, is_connected
+    if is_connected:
+        return jsonify({'connected': True})
+    elif qr_code:
+        return jsonify({'qr': qr_code, 'connected': False})
+    else:
+        return jsonify({'connected': False})
 
 @app.route('/api/status')
 def status():
