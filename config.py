@@ -4,6 +4,9 @@ import os
 # WhatsApp Web URL
 WHATSAPP_WEB_URL = "https://web.whatsapp.com/"
 
+# Firefox profile path (only used for local development)
+FIREFOX_PROFILE_PATH = os.environ.get("FIREFOX_PROFILE_PATH", "")
+
 # Data folder
 DATA_FOLDER = os.path.join(os.getcwd(), "data")
 USERS_JSON = os.path.join(DATA_FOLDER, "users.json")
