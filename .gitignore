@@ -47,6 +47,3 @@ chrome_profile/
 node_modules/
 whatsapp_bridge/
 auth_info/
-
-# Render deployment
-.render/
