@@ -22,6 +22,8 @@
             max-width: 250px;
             margin: 20px auto;
             display: block;
+            border: 1px solid #ddd;
+            border-radius: 10px;
         }
         .status {
             padding: 10px;
@@ -44,6 +46,15 @@
             border-radius: 10px;
             cursor: pointer;
         }
+        .instructions {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: left;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
@@ -52,26 +63,44 @@
         <div id="status" class="status waiting">⏳ Waiting for connection...</div>
         <div id="qrDisplay"><p>Loading QR code...</p></div>
         <button onclick="location.reload()">Refresh</button>
+        <div class="instructions">
+            <strong>How to connect:</strong>
+            <ol>
+                <li>Open WhatsApp on your phone</li>
+                <li>Go to Settings → Linked Devices → Link a Device</li>
+                <li>Scan the QR code above</li>
+            </ol>
+            <p><strong>Note:</strong> If QR code doesn't appear, check the Render logs for the QR code data.</p>
+        </div>
     </div>
     <script>
+        let lastQr = null;
+        
         function update() {
             fetch('/api/status')
                 .then(res => res.json())
                 .then(data => {
-                    const status = document.getElementById('status');
+                    const statusDiv = document.getElementById('status');
                     if (data.connected) {
-                        status.innerHTML = '✅ Connected! Bot is active.';
-                        status.className = 'status connected';
+                        statusDiv.innerHTML = '✅ Connected! Bot is active.';
+                        statusDiv.className = 'status connected';
+                        document.getElementById('qrDisplay').innerHTML = '<p>✅ Connected! Bot is active.</p>';
                     }
                 });
+            
             fetch('/api/qr')
                 .then(res => res.json())
                 .then(data => {
-                    if (data.qr && !data.connected) {
-                        document.getElementById('qrDisplay').innerHTML = `<img src="${data.qr}" class="qr-code">`;
+                    if (data.connected) {
+                        document.getElementById('qrDisplay').innerHTML = '<p>✅ Connected! Bot is active.</p>';
+                    } else if (data.qr && data.qr !== lastQr) {
+                        lastQr = data.qr;
+                        document.getElementById('qrDisplay').innerHTML = `<img src="${data.qr}" class="qr-code" alt="QR Code"><p>Scan this QR code with WhatsApp</p>`;
                     }
-                });
+                })
+                .catch(err => console.error('Error:', err));
         }
+        
         update();
         setInterval(update, 3000);
     </script>
