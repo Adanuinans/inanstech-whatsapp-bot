@@ -4,6 +4,9 @@ import os
 # WhatsApp Web URL
 WHATSAPP_WEB_URL = "https://web.whatsapp.com/"
 
+# Firefox binary path for local development
+FIREFOX_BINARY_PATH = r"C:\Program Files\Mozilla Firefox\firefox.exe"
+
 # Firefox profile path (only used for local development)
 FIREFOX_PROFILE_PATH = os.environ.get("FIREFOX_PROFILE_PATH", "")
 
