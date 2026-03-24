@@ -1,6 +1,6 @@
-flask
-selenium
-openai
-google-generativeai
-huggingface-hub
-requests
+flask==2.3.3
+mistralai==0.4.2
+selenium==4.15.2
+requests==2.31.0
+pillow==10.1.0
+qrcode==7.4.2
