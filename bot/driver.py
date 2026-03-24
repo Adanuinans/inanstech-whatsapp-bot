@@ -5,7 +5,7 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from config import FIREFOX_PROFILE_PATH, WHATSAPP_WEB_URL
+from config import WHATSAPP_WEB_URL
 import os
 import time
 import tempfile
@@ -14,9 +14,6 @@ import base64
 import io
 from PIL import Image
 
-# Add your Firefox binary path
-FIREFOX_BINARY_PATH = r"C:\Program Files\Mozilla Firefox\firefox.exe"
-
 # Global driver reference
 _driver = None
 _current_qr = None
@@ -24,14 +21,17 @@ _current_qr = None
 
 def launch_browser():
     """Launch Firefox for local development (with GUI)"""
+    from config import FIREFOX_PROFILE_PATH, FIREFOX_BINARY_PATH
+    
     options = Options()
     
     # Set Firefox binary path if exists
     if os.path.exists(FIREFOX_BINARY_PATH):
         options.binary_location = FIREFOX_BINARY_PATH
     
-    # Use the existing profile
-    options.add_argument(f"--profile={FIREFOX_PROFILE_PATH}")
+    # Use the existing profile if provided
+    if FIREFOX_PROFILE_PATH and os.path.exists(FIREFOX_PROFILE_PATH):
+        options.add_argument(f"--profile={FIREFOX_PROFILE_PATH}")
     
     service = Service(executable_path="geckodriver.exe")
     driver = webdriver.Firefox(service=service, options=options)
@@ -117,7 +117,6 @@ def get_qr_code(driver):
         
         # Print QR code data to logs for debugging
         print(f"✅ QR code captured! Data length: {len(canvas_data)}")
-        print(f"QR code starts with: {canvas_data[:100]}...")
         
         return canvas_data
     except Exception as e:
